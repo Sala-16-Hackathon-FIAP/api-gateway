@@ -1,0 +1,19 @@
+spring:
+  cloud:
+    gateway:
+      routes: []
+
+jwt:
+  secret: ZmlhcHhzZWNyZXRrZXlmb3Jqd3RhdXRoZW50aWNhdGlvbjIwMjU=
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
