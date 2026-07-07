@@ -1,5 +1,5 @@
 common: &default_settings
-  license_key: '${NEW_RELIC_LICENSE_KEY:59400ec9720dcd630590cfa313f9afa49301NRAL}'
+  license_key: '${NEW_RELIC_LICENSE_KEY}'
   app_name: fiapx-api-gateway
   log_level: info
   log_file_name: newrelic_agent.log
