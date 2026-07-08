@@ -50,6 +50,7 @@ spec:
                 secretKeyRef:
                   name: api-gateway-secrets
                   key: new-relic-license-key
+                  optional: true
           livenessProbe:
             httpGet:
               path: /actuator/health
