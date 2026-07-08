@@ -216,3 +216,9 @@ Kubernetes secrets are automatically created by the pipeline from GitHub Secrets
 # Get the gateway public URL after EKS deploy
 kubectl get svc api-gateway -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
 ```
+
+---
+
+## Acknowledgments
+
+This project was developed with the assistance of [Claude](https://claude.com/claude-code) (Anthropic) as an AI pair-programming tool for code implementation, debugging, and documentation.
