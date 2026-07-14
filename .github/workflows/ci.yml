@@ -2,7 +2,7 @@ name: CI/CD - api-gateway
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "feature/modulo5"]
   pull_request:
     branches: ["main"]
 
@@ -35,13 +35,13 @@ jobs:
         run: mvn -B clean verify
 
       - name: SonarCloud analysis
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feature/modulo5')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mvn -B sonar:sonar \
-            -Dsonar.projectKey=fiapx_api-gateway \
-            -Dsonar.organization=fiapx \
+            -Dsonar.projectKey=Sala-16-Hackathon-FIAP_api-gateway \
+            -Dsonar.organization=sala-16-hackathon-fiap \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
@@ -51,7 +51,7 @@ jobs:
     name: Build & Push Docker Image
     runs-on: ubuntu-latest
     needs: build-and-test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feature/modulo5')
     permissions:
       contents: read
       packages: write
@@ -85,7 +85,7 @@ jobs:
     name: Deploy to EKS
     runs-on: ubuntu-latest
     needs: docker
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feature/modulo5')
     steps:
       - uses: actions/checkout@v4
 
@@ -119,3 +119,15 @@ jobs:
           kubectl apply -f k8s/deployment.yaml
           kubectl rollout restart deployment/${{ env.SERVICE_NAME }}
           kubectl rollout status deployment/${{ env.SERVICE_NAME }} --timeout=300s
+
+      - name: Print Swagger URL
+        run: |
+          echo "============================================"
+          echo "  API Gateway - URLs de Acesso"
+          echo "============================================"
+          NLB=$(kubectl get svc ${{ env.SERVICE_NAME }} -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null || echo "<pendente>")
+          echo ""
+          echo "Swagger UI:  http://${NLB}/swagger-ui.html"
+          echo "Health:      http://${NLB}/actuator/health"
+          echo "Base URL:    http://${NLB}/api/v1/"
+          echo "============================================"
