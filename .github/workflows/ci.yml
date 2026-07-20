@@ -115,6 +115,7 @@ jobs:
           sed -i "s|API_GATEWAY_IMAGE|$IMAGE|g" k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
           kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/hpa.yaml
           kubectl rollout restart deployment/${{ env.SERVICE_NAME }}
           kubectl rollout status deployment/${{ env.SERVICE_NAME }} --timeout=300s
 
