@@ -1,0 +1,105 @@
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      server:
+        webflux:
+          globalcors:
+            cors-configurations:
+              '[/**]':
+                allowedOriginPatterns: "*"
+                allowedMethods: [GET, POST, PUT, DELETE, OPTIONS]
+                allowedHeaders: "*"
+                allowCredentials: true
+                maxAge: 3600
+          routes:
+            # ── Auth service (public) ──────────────────────────────────────────
+            - id: auth-service
+              uri: ${AUTH_SERVICE_URL:http://localhost:8080}
+              predicates:
+                - Path=/api/v1/auth/**
+
+            # ── Protected API routes ───────────────────────────────────────────
+            - id: upload-service
+              uri: ${UPLOAD_SERVICE_URL:http://localhost:8082}
+              predicates:
+                - Path=/api/v1/uploads/**
+              filters:
+                - name: JwtAuthenticationFilter
+
+            - id: status-service
+              uri: ${STATUS_SERVICE_URL:http://localhost:8084}
+              predicates:
+                - Path=/api/v1/status/**
+              filters:
+                - name: JwtAuthenticationFilter
+
+            - id: notification-service
+              uri: ${NOTIFICATION_SERVICE_URL:http://localhost:8085}
+              predicates:
+                - Path=/api/v1/notifications/**
+              filters:
+                - name: JwtAuthenticationFilter
+
+            # ── OpenAPI spec routes (public — Swagger UI uses these) ───────────
+            - id: auth-service-api-docs
+              uri: ${AUTH_SERVICE_URL:http://localhost:8080}
+              predicates:
+                - Path=/docs/auth-service
+              filters:
+                - RewritePath=/docs/auth-service, /api-docs
+
+            - id: upload-service-api-docs
+              uri: ${UPLOAD_SERVICE_URL:http://localhost:8082}
+              predicates:
+                - Path=/docs/upload-service
+              filters:
+                - RewritePath=/docs/upload-service, /api-docs
+
+            - id: status-service-api-docs
+              uri: ${STATUS_SERVICE_URL:http://localhost:8084}
+              predicates:
+                - Path=/docs/status-service
+              filters:
+                - RewritePath=/docs/status-service, /api-docs
+
+            - id: notification-service-api-docs
+              uri: ${NOTIFICATION_SERVICE_URL:http://localhost:8085}
+              predicates:
+                - Path=/docs/notification-service
+              filters:
+                - RewritePath=/docs/notification-service, /api-docs
+
+server:
+  port: 8081
+
+jwt:
+  secret: ${JWT_SECRET:ZmlhcHhzZWNyZXRrZXlmb3Jqd3RhdXRoZW50aWNhdGlvbjIwMjU=}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    config-url: /v3/api-docs/swagger-config
+    # Each entry loads the OpenAPI spec of one downstream service.
+    # The gateway proxies /docs/<service> → <service>/api-docs (no JWT required).
+    urls:
+      - name: auth-service
+        url: /docs/auth-service
+      - name: upload-service
+        url: /docs/upload-service
+      - name: status-service
+        url: /docs/status-service
+      - name: notification-service
+        url: /docs/notification-service
+  api-docs:
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  metrics:
+    tags:
+      application: api-gateway

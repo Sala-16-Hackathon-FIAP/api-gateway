@@ -1,0 +1,24 @@
+common: &default_settings
+  license_key: '${NEW_RELIC_LICENSE_KEY}'
+  app_name: fiapx-api-gateway
+  log_level: info
+  log_file_name: newrelic_agent.log
+  distributed_tracing:
+    enabled: true
+  application_logging:
+    enabled: true
+    forwarding:
+      enabled: true
+  error_collector:
+    enabled: true
+
+development:
+  <<: *default_settings
+  app_name: fiapx-api-gateway (Development)
+
+test:
+  <<: *default_settings
+  app_name: fiapx-api-gateway (Test)
+
+production:
+  <<: *default_settings
