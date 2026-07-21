@@ -2,6 +2,10 @@
 
 Single entry point for all client requests in the FIAP-X video processing platform. Validates JWT tokens, routes requests to the appropriate microservice, aggregates Swagger/OpenAPI specs into a unified UI, and enforces CORS.
 
+![FIAP-X platform architecture](docs/architecture.png)
+
+> High-level architecture of the FIAP-X platform — microservices, choreographed saga over RabbitMQ, database-per-service (RDS), object storage (S3), running on EKS and provisioned with Terraform.
+
 ---
 
 ## Tech Stack
